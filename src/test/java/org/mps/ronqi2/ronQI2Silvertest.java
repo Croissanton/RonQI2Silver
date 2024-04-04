@@ -31,6 +31,17 @@ public class ronQI2Silvertest {
         assertTrue(ronQI2.inicializar());
     }
 
+    @Test
+    @DisplayName("Inicializar cuando no se puede conectar alguno de los sensores devuelve false")
+    public void InicializarReturnsFalseCuandoNoSePuedeConectarAlgunoDeLosSensores(){
+        Dispositivo disp = mock(Dispositivo.class);
+        when (disp.conectarSensorPresion()).thenReturn(false);
+        when (disp.conectarSensorSonido()).thenReturn(true);
+        RonQI2Silver ronQI2 = new RonQI2Silver();
+        ronQI2.anyadirDispositivo(disp);
+        assertTrue(!ronQI2.inicializar());
+    }
+
     /*
      * Un inicializar debe configurar ambos sensores, comprueba que cuando se inicializa de forma correcta (el conectar es true), 
      * se llama una sola vez al configurar de cada sensor.
