@@ -1,14 +1,30 @@
 package org.mps.ronqi2;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mps.dispositivo.Dispositivo;
+import org.mps.dispositivo.DispositivoSilver;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 
-public class ronQI2SilverTest {
+public class RonQI2SilverTest {
+
+    Dispositivo disp;
+    RonQI2Silver ronQI2;
+
+    @BeforeEach
+    public void setUp(){
+        disp = mock(Dispositivo.class);
+        when (disp.leerSensorPresion()).thenReturn(10.0f);
+        when (disp.leerSensorSonido()).thenReturn(10.0f);
+
+        ronQI2 = new RonQI2Silver();
+        ronQI2.anyadirDispositivo(disp);
+    }
 
     
     /*
@@ -20,29 +36,57 @@ public class ronQI2SilverTest {
 
     @Test
     @DisplayName("Inicializar cuando se pueden conectar ambos sensores devuelve true")
-    public void InicializarReturnsTrueCuandoSePuedenConectarYConfigurarAmbosSensores(){
-        Dispositivo disp = mock(Dispositivo.class);
+    public void Inicializar_CuandoSePuedenConectarYConfigurarAmbosSensores_ReturnsTrue(){
         when (disp.conectarSensorPresion()).thenReturn(true);
         when (disp.configurarSensorPresion()).thenReturn(true);
         when (disp.conectarSensorSonido()).thenReturn(true);
         when (disp.configurarSensorSonido()).thenReturn(true);
-        RonQI2Silver ronQI2 = new RonQI2Silver();
-        ronQI2.anyadirDispositivo(disp);
+
         assertTrue(ronQI2.inicializar());
     }
 
     @Test
-    @DisplayName("Inicializar cuando no se puede conectar alguno de los sensores devuelve false")
-    public void InicializarReturnsFalseCuandoNoSePuedeConectarAlgunoDeLosSensores(){
-        Dispositivo disp = mock(Dispositivo.class);
+    @DisplayName("Inicializar cuando no se puede conectar el sensor de presion devuelve false")
+    public void Inicializar_CuandoNoSePuedeConectarSensorPresion_DevuelveFalse(){
         when (disp.conectarSensorPresion()).thenReturn(false);
+        when (disp.configurarSensorPresion()).thenReturn(true);
         when (disp.conectarSensorSonido()).thenReturn(true);
-        //RonQI2Silver ronQI2 = new RonQI2Silver();
-        RonQI2 ronQI = mock(RonQI2.class);
-        ronQI.anyadirDispositivo(disp);
-        when (ronQI.inicializar()).thenReturn(true);
-        //ronQI2.anyadirDispositivo(disp);
-        //assertTrue(!ronQI2.inicializar());
+        when (disp.configurarSensorSonido()).thenReturn(true);
+
+        assertFalse(ronQI2.inicializar());
+    }
+
+    @Test
+    @DisplayName("Inicializar cuando no se puede conectar el sensor de sonido devuelve false")
+    public void Inicializar_CuandoNoSePuedeConectarSensorSonido_DevuelveFalse(){
+        when (disp.conectarSensorPresion()).thenReturn(true);
+        when (disp.conectarSensorSonido()).thenReturn(false);
+        when (disp.conectarSensorSonido()).thenReturn(true);
+        when (disp.configurarSensorSonido()).thenReturn(true);
+
+        assertFalse(ronQI2.inicializar());
+    }
+
+    @Test
+    @DisplayName("Inicializar cuando no se puede configurar el sensor de presion devuelve false")
+    public void Inicializar_CuandoNoSePuedeConfigurarSensorPresion_DevuelveFalse(){
+        when (disp.conectarSensorPresion()).thenReturn(true);
+        when (disp.configurarSensorPresion()).thenReturn(false);
+        when (disp.conectarSensorSonido()).thenReturn(true);
+        when (disp.configurarSensorSonido()).thenReturn(true);
+
+        assertFalse(ronQI2.inicializar());
+    }
+
+    @Test
+    @DisplayName("Inicializar cuando no se puede configurar el sensor de sonido devuelve false")
+    public void Inicializar_CuandoNoSePuedeConfigurarSensorSonido_DevuelveFalse(){
+        when (disp.conectarSensorPresion()).thenReturn(true);
+        when (disp.configurarSensorPresion()).thenReturn(true);
+        when (disp.conectarSensorSonido()).thenReturn(true);
+        when (disp.configurarSensorSonido()).thenReturn(false);
+
+        assertFalse(ronQI2.inicializar());
     }
 
     /*
@@ -51,16 +95,14 @@ public class ronQI2SilverTest {
      */
     @Test
     @DisplayName("Inicializar cuando se inicializa correctamente llama a configurarSensorPresion y configurarSensorSonido una vez")
-    public void InicializarReturnsTrueCuandoSePuedenConectarYConfigurarAmbosSensoresLlamaConfigurarUnaVez(){
-        Dispositivo disp = mock(Dispositivo.class);
+    public void Inicializar_CuandoSePuedenConectarYConfigurarAmbosSensores_LlamaALosMetodosDeConfigurarUnaVez(){
         when (disp.conectarSensorPresion()).thenReturn(true);
         when (disp.configurarSensorPresion()).thenReturn(true);
         when (disp.conectarSensorSonido()).thenReturn(true);
         when (disp.configurarSensorSonido()).thenReturn(true);
-        RonQI2Silver ronQI2 = new RonQI2Silver();
-        //RonQI2 ronQI2 = mock(RonQI2.class);
-        ronQI2.anyadirDispositivo(disp);
+
         ronQI2.inicializar();
+
         verify(disp, times(1)).configurarSensorPresion();
         verify(disp, times(1)).configurarSensorSonido();
     }
@@ -73,24 +115,20 @@ public class ronQI2SilverTest {
      */
     @Test
     @DisplayName("Reconectar cuando el dispositivo no está conectado conecta ambos sensores y devuelve true")
-    public void ReconectarReturnsTrueCuandoElDispositivoNoEstaConectadoConectaAmbosSensores(){
-        Dispositivo disp = mock(Dispositivo.class);
+    public void Reconectar_CuandoElDispositivoNoEstaConectado_ConectaSensoresDevuelveTrue(){
         when (disp.estaConectado()).thenReturn(false);
         when (disp.conectarSensorPresion()).thenReturn(true);
         when (disp.conectarSensorSonido()).thenReturn(true);
-        RonQI2Silver ronQI2 = new RonQI2Silver();
-        ronQI2.anyadirDispositivo(disp);
+
         assertTrue(ronQI2.reconectar());
     }
 
     @Test
     @DisplayName("Reconectar cuando el dispositivo esta conectado no conecta ningun sensor y devuelve false")
-    public void ReconectarReturnsFalseCuandoElDispositivoEstaConectadoNoConectaSensores(){
-        Dispositivo disp = mock(Dispositivo.class);
+    public void Reconectar_CuandoElDispositivoEstaConectadoNoConectaSensores_DevuelveFalse(){
         when (disp.estaConectado()).thenReturn(true);
-        RonQI2Silver ronQI2 = new RonQI2Silver();
-        ronQI2.anyadirDispositivo(disp);
-        assertTrue(!ronQI2.reconectar());
+
+        assertFalse(ronQI2.reconectar());
     }
     
     /*
