@@ -33,7 +33,7 @@ public abstract class RonQI2 {
     */
     public boolean reconectar(){
         boolean result = false;
-        if (!disp.estaConectado()){
+        if (!estaConectado()){ // ERROR 1: DEBERÍA LLAMAR AL MÉTODO estaConectado(), DECLARADO EN ESTA MISMA CLASE, EN VEZ DE AL MÉTODO DEL MISMO NOMBRE DE LA CLASE Dispositivo.
             result = disp.conectarSensorPresion() && disp.conectarSensorSonido();
         }
         return result;
