@@ -1,3 +1,5 @@
+//Autores: Cristian Ruiz Martín y Mikolaj Zabski
+
 package org.mps.dispositivo;
 public class DispositivoSilver extends Dispositivo{
     
